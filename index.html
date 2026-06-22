@@ -1,13 +1,1243 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Website đầu tiên của tôi</title>
-</head>
+import React, { useState, useEffect } from 'react';
+import { 
+  Book, 
+  CheckCircle, 
+  AlertCircle, 
+  RefreshCw, 
+  X, 
+  ChevronRight, 
+  Send, 
+  Calendar, 
+  Award, 
+  Trash2, 
+  Play, 
+  Square, 
+  Cpu, 
+  BookOpen, 
+  Sparkles, 
+  Clock, 
+  Heart, 
+  Plus, 
+  Search, 
+  FileText, 
+  Menu, 
+  LayoutDashboard, 
+  Mic, 
+  PenTool, 
+  GraduationCap, 
+  BrainCircuit, 
+  Volume2
+} from 'lucide-react';
 
-<body>
-<h1>Xin chào!</h1>
-<h2>Đây là website đầu tiên của tôi.</h2>
-<p>Tạo bằng GitHub Pages.</p>
-</body>
-</html>
+const initialVocabularyTopics = [
+  { 
+    title: "Gia đình & Vai vế", 
+    icon: "👨‍👩‍👧‍👦", 
+    words: [
+      { term: "Nuclear family", ipa: "/ˈnuːkliər ˈfæməli/", meaning: "Gia đình hạt nhân (chỉ gồm bố mẹ và con cái)", example: "Living in a nuclear family allows parents to focus more on their children." },
+      { term: "Extended family", ipa: "/ɪkˈstendɪd ˈfæməli/", meaning: "Gia đình đa thế hệ", example: "Her extended family gathers every Lunar New Year." },
+      { term: "Sibling", ipa: "/ˈsɪblɪŋ/", meaning: "Anh/chị/em ruột", example: "The rivalry between siblings is completely natural." },
+      { term: "Relative", ipa: "/ˈrelətɪv/", meaning: "Họ hàng", example: "All of our close relatives were invited to the banquet." },
+      { term: "Ancestor", ipa: "/ˈænsestər/", meaning: "Tổ tiên", example: "They returned to their home village to worship their ancestors." },
+      { term: "Descendant", ipa: "/dɪˈsendənt/", meaning: "Hậu duệ, con cháu", example: "He is a direct descendant of the royal family." },
+      { term: "Generation", ipa: "/ˌdʒenəˈreɪʃn/", meaning: "Thế hệ", example: "The cultural gap between generations is growing wider." },
+      { term: "Breadwinner", ipa: "/ˈbredwɪnər/", meaning: "Trụ cột gia đình", example: "In many traditional households, the father is the sole breadwinner." }
+    ]
+  },
+  { 
+    title: "Nhà cửa", 
+    icon: "🏠", 
+    words: [
+      { term: "Accommodation", ipa: "/əˌkɑːməˈdeɪʃn/", meaning: "Chỗ ở, nhà ở", example: "Finding affordable student accommodation in London is extremely difficult." },
+      { term: "Apartment / Flat", ipa: "/əˈpɑːrtmənt / flæt/", meaning: "Căn hộ", example: "They rented a small cozy apartment on the third floor." },
+      { term: "Living room / Bedroom / Kitchen / Bathroom", ipa: "/ˈlɪvɪŋ ruːm / ˈbedruːm / ˈkɪtʃɪn / ˈbæθruːm/", meaning: "Phòng khách / Phòng ngủ / Nhà bếp / Phòng tắm", example: "Our new apartment has a spacious living room and two quiet bedrooms." },
+      { term: "Furniture", ipa: "/ˈfɜːrnɪtʃər/", meaning: "Đồ nội thất", example: "They spent the weekend choosing furniture for their brand new living room." },
+      { term: "Balcony", ipa: "/ˈbælkəni/", meaning: "Ban công", example: "She likes to drink her morning coffee on the balcony." },
+      { term: "Ceiling / Floor / Roof", ipa: "/ˈsiːlɪŋ / flɔːr / ruːf/", meaning: "Trần nhà / Sàn nhà / Mái nhà", example: "The historical cottage features a wooden ceiling and a robust clay roof." },
+      { term: "Neighborhood", ipa: "/ˈneɪbərhʊd/", meaning: "Khu dân cư, hàng xóm", example: "The school is located in a quiet, friendly neighborhood." }
+    ]
+  },
+  { 
+    title: "Quần áo & Phụ kiện", 
+    icon: "👕", 
+    words: [
+      { term: "Outfit", ipa: "/ˈaʊtfɪt/", meaning: "Trang phục (bộ đồ phối hoàn chỉnh)", example: "I bought a formal outfit for the upcoming job interview." },
+      { term: "T-shirt / Shirt", ipa: "/ˈtiː ʃɜːrt / ʃɜːrt/", meaning: "Áo thun / Áo sơ mi có cổ", example: "He wore a crisp white shirt paired with a dark jacket." },
+      { term: "Trousers (UK) / Pants (US)", ipa: "/ˈtraʊzərz / pænts/", meaning: "Quần dài", example: "He wore dark blue trousers and a white linen shirt." },
+      { term: "Dress / Skirt", ipa: "/dres / skɜːrt/", meaning: "Váy liền / Chân váy", example: "The school uniform requires girls to wear navy blue skirts." },
+      { term: "Jacket / Coat", ipa: "/ˈdʒækɪt / koʊt/", meaning: "Áo khoác ngắn / Áo khoác dài", example: "You should wear a heavy coat; it is freezing outside." },
+      { term: "Sneakers / High heels", ipa: "/ˈsniːkərz / haɪ hiːlz/", meaning: "Giày thể thao / Giày cao gót", example: "Sneakers provide excellent cushioning for long walks." },
+      { term: "Accessory", ipa: "/əkˈsesəri/", meaning: "Phụ kiện đi kèm (đồng hồ, trang sức...)", example: "A silk scarf can be a great accessory to elevate your outfit." }
+    ]
+  },
+  { 
+    title: "Số đếm & Toán học", 
+    icon: "🔢", 
+    words: [
+      { term: "Cardinal numbers", ipa: "/ˈkɑːrdɪnl ˈnʌmbərz/", meaning: "Số đếm (One, Two, Three, Hundred, Thousand, Million, Billion)", example: "Cardinal numbers are used to express the quantity of objects." },
+      { term: "Ordinal numbers", ipa: "/ˈɔːrdɪnl ˈnʌmbərz/", meaning: "Số thứ tự (First - 1st, Second - 2nd, Third - 3rd, Fourth - 4th...)", example: "Ordinal numbers indicate the position of an item in a sequence." },
+      { term: "Even number / Odd number", ipa: "/ˈiːvn ˈnʌmbər / ɑːd ˈnʌmbər/", meaning: "Số chẵn / Số lẻ", example: "Four is an even number, whereas seven is an odd number." },
+      { term: "Fraction", ipa: "/ˈfrækʃn/", meaning: "Phân số", example: "Three-quarters is a fraction representing 75 percent." },
+      { term: "Percentage", ipa: "/pərˈsentɪdʒ/", meaning: "Phần trăm", example: "The percentage of students passing the test rose significantly this term." }
+    ]
+  }
+];
+
+const grammarSyllabus = [
+  {
+    id: "inversion",
+    title: "Cấu Trúc Đảo Ngữ (Inversion)",
+    difficulty: "Advanced",
+    explanation: "Đảo ngữ được dùng để nhấn mạnh ý muốn diễn đạt. Ta đưa trợ động từ lên trước chủ ngữ. Thường dùng sau các trạng từ phủ định hoặc giới hạn.",
+    formula: "No sooner + had + S + V3/ed + than + S + V2/ed (Ngay khi... thì...)",
+    example: "Hardly had the meeting started when the argument broke out.",
+    questions: [
+      {
+        q: "_______ had I arrived at the station than the train left.",
+        options: ["A. Hardly", "B. No sooner", "C. Scarcely", "D. Seldom"],
+        correct: 1
+      },
+      {
+        q: "Not until yesterday _______ the truth about the missing documents.",
+        options: ["A. did she learn", "B. she learned", "C. had she learned", "D. she did learn"],
+        correct: 0
+      }
+    ]
+  },
+  {
+    id: "conditionals",
+    title: "Câu Điều Kiện Hỗn Hợp (Mixed Conditionals)",
+    difficulty: "Advanced",
+    explanation: "Dùng để diễn tả một giả thiết trái ngược với quá khứ dẫn đến kết quả trái ngược ở hiện tại.",
+    formula: "If + S + had + V3/ed, S + would + V-bare (now)",
+    example: "If I had studied harder in high school, I would be at university now.",
+    questions: [
+      {
+        q: "If you had taken my advice, you _______ in trouble now.",
+        options: ["A. wouldn't have been", "B. wouldn't be", "C. won't be", "D. aren't"],
+        correct: 1
+      }
+    ]
+  },
+  {
+    id: "subjunctive",
+    title: "Thể Giả Định (Subjunctive Mood)",
+    difficulty: "Intermediate - Advanced",
+    explanation: "Thể giả định dùng để nhấn mạnh tầm quan trọng hoặc sự khẩn thiết của một hành động. Động từ ở mệnh đề sau 'that' luôn ở dạng nguyên mẫu không 'to'.",
+    formula: "S + suggest/insist/demand + that + S + V-bare",
+    example: "The doctor recommended that he cease smoking immediately.",
+    questions: [
+      {
+        q: "The board demanded that the CEO _______ a detailed report.",
+        options: ["A. presents", "B. present", "C. presented", "D. must present"],
+        correct: 1
+      }
+    ]
+  }
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [notification, setNotification] = useState(null);
+  const [streak, setStreak] = useState(5);
+  const [hasCheckedIn, setHasCheckedIn] = useState(false);
+  const [activeDictionaryWord, setActiveDictionaryWord] = useState(null);
+  const [dictionaryLoading, setDictionaryLoading] = useState(false);
+  const [dictionaryData, setDictionaryData] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [placementAnswers, setPlacementAnswers] = useState({ q1: '', q2: '', q3: '', q4: '' });
+  const [placementCompleted, setPlacementCompleted] = useState(false);
+  const [placementBand, setPlacementBand] = useState(null);
+  const [weeklyPlan, setWeeklyPlan] = useState([]);
+
+  const [chatMessages, setChatMessages] = useState([
+    { role: 'ai', text: "Hello there! I am your interactive English Language Mentor powered by Gemini. Let's practice speaking today. Choose a topic (e.g., your career, daily routine, environment) and write your first sentence. I will correct your mistakes and guide you." }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+
+  const [essayTopic, setEssayTopic] = useState("Some people believe that university education should be free for everyone. Discuss both views.");
+  const [essayText, setEssayText] = useState('');
+  const [essayCorrection, setEssayCorrection] = useState('');
+  const [isCorrecting, setIsCorrecting] = useState(false);
+
+  const [selectedVocabTopic, setSelectedVocabTopic] = useState(initialVocabularyTopics[0]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const [grammarScores, setGrammarScores] = useState({}); 
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+
+  const [appointments, setAppointments] = useState([
+    { id: 1, date: "2026-06-25", time: "19:30", mentor: "AI Speaking Coach", topic: "Phản xạ giao tiếp tự nhiên" },
+    { id: 2, date: "2026-06-27", time: "14:00", mentor: "AI Writing Evaluator", topic: "Bố cục bài viết học thuật" }
+  ]);
+  const [newAppt, setNewAppt] = useState({ date: '', time: '', mentor: 'AI Speaking Coach', topic: '' });
+
+  const [mockRunning, setMockRunning] = useState(false);
+  const [mockTimeRemaining, setMockTimeRemaining] = useState(1200); 
+  const [mockAnswers, setMockAnswers] = useState({ mq1: '', mq2: '', mq3: '' });
+  const [mockSubmitted, setMockSubmitted] = useState(false);
+  const [mockScore, setMockScore] = useState(null);
+
+  const [moodChat, setMoodChat] = useState([
+    { role: 'ai', text: "Học tập một ngôn ngữ mới đôi khi rất dễ nản lòng. Bạn có cảm thấy mệt mỏi hay áp lực không? Hãy chia sẻ với tôi để tìm lại nguồn cảm hứng nhé!" }
+  ]);
+  const [moodInput, setMoodInput] = useState('');
+  const [isMoodLoading, setIsMoodLoading] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (mockRunning && mockTimeRemaining > 0) {
+      timer = setInterval(() => {
+        setMockTimeRemaining(prev => prev - 1);
+      }, 1000);
+    } else if (mockTimeRemaining === 0 && mockRunning) {
+      handleMockSubmit();
+    }
+    return () => clearInterval(timer);
+  }, [mockRunning, mockTimeRemaining]);
+
+  const showNotification = (text, type = 'success') => {
+    setNotification({ text, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleCheckIn = () => {
+    if (!hasCheckedIn) {
+      setStreak(prev => prev + 1);
+      setHasCheckedIn(true);
+      showNotification("Đã điểm danh hôm nay! Giữ vững ngọn lửa học tập nhé. 🔥", "success");
+    }
+  };
+
+  const callGeminiAPI = async (prompt, systemInstruction = "") => {
+    const apiKey = ""; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+    };
+    
+    if (systemInstruction) {
+        payload.systemInstruction = {
+            parts: [{ text: systemInstruction }]
+        };
+    }
+
+    let delay = 1000;
+    for (let i = 0; i < 3; i++) {
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API Request Failed with status ${response.status}`);
+            }
+            
+            const result = await response.json();
+            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+                return text;
+            }
+            throw new Error("Empty response object received from Gemini");
+        } catch (err) {
+            if (i === 2) throw err;
+            await new Promise(res => setTimeout(res, delay));
+            delay *= 2;
+        }
+    }
+  };
+
+  const handleTextDoubleClick = async () => {
+    const selectedText = window.getSelection().toString().trim().replace(/[^a-zA-Z]/g, "").toLowerCase();
+    if (selectedText.length > 2) {
+      setActiveDictionaryWord(selectedText);
+      setDictionaryLoading(true);
+      
+      const systemInstruction = "You are a professional English-Vietnamese learner's dictionary. Provide clear IPA, Parts of Speech, a very accurate Vietnamese translation, 2-3 English example sentences with Vietnamese translation, and common useful collocations/synonyms.";
+      const prompt = `Translate and analyze the English word: "${selectedText}". Provide a beautifully structured explanation.`;
+      
+      try {
+        const details = await callGeminiAPI(prompt, systemInstruction);
+        setDictionaryData({
+          word: selectedText,
+          details: details
+        });
+      } catch (error) {
+        setDictionaryData({
+          word: selectedText,
+          details: `Phát âm: /${selectedText}/\nLỗi: Không thể tải từ điển thời gian thực do vấn đề kết nối. Hãy thử lại sau.`
+        });
+      } finally {
+        setDictionaryLoading(false);
+      }
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim()) return;
+    const currentInput = chatInput;
+    const updatedMessages = [...chatMessages, { role: 'user', text: currentInput }];
+    setChatMessages(updatedMessages);
+    setChatInput('');
+    setIsChatLoading(true);
+
+    const systemInstruction = "You are a friendly, native English IELTS & general English speaking mentor. Your role is to conduct natural conversations, immediately analyze the user's latest sentence for spelling, grammar, natural phrasing, vocabulary suitability, and then provide helpful feedback. Finish your feedback by asking one relevant question to keep the conversation flowing smoothly. Keep explanations crisp and pedagogical.";
+    const conversationHistoryText = updatedMessages.map(m => `${m.role === 'user' ? 'Student' : 'Mentor'}: ${m.text}`).join('\n');
+    const prompt = `Here is our conversation history:\n${conversationHistoryText}\n\nAnalyze and react to my last message. Show any improvements if possible, and then respond to me naturally as a mentor.`;
+
+    try {
+      const aiReply = await callGeminiAPI(prompt, systemInstruction);
+      setChatMessages([...updatedMessages, { role: 'ai', text: aiReply }]);
+    } catch (e) {
+      setChatMessages([...updatedMessages, { role: 'ai', text: "Tôi đang gặp trục trặc kết nối tạm thời. Hãy thử gửi lại tin nhắn nhé!" }]);
+      showNotification("Có lỗi xảy ra khi kết nối máy chủ Gemini.", "error");
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  const handleCorrectEssay = async () => {
+    if (!essayText.trim()) {
+      showNotification("Vui lòng nhập bài viết của bạn trước.", "error");
+      return;
+    }
+    setIsCorrecting(true);
+    
+    const systemInstruction = "You are an expert Cambridge English Writing Evaluator. Provide a detailed, rigorous, yet encouraging evaluation report in Vietnamese of the submitted essay. You must estimate the CEFR Level (A1 to C2) or IELTS Equivalent Band, analyze grammar, coherence, vocabulary, and most importantly, provide a rewritten version of the essay at a highly academic, elegant, Band 8.5+ level.";
+    const prompt = `Topic of the essay: "${essayTopic}"\n\nStudent's Essay:\n"${essayText}"\n\nGenerate the complete evaluation report with structured headings.`;
+
+    try {
+      const report = await callGeminiAPI(prompt, systemInstruction);
+      setEssayCorrection(report);
+      showNotification("Đã chấm điểm bài viết thành công với Gemini!", "success");
+    } catch (e) {
+      showNotification("Gặp lỗi khi phân tích bài viết.", "error");
+    } finally {
+      setIsCorrecting(false);
+    }
+  };
+
+  const handlePlacementSubmit = () => {
+    let rawScore = 0;
+    if (placementAnswers.q1 === 'A') rawScore++;
+    if (placementAnswers.q2 === 'A') rawScore++;
+    if (placementAnswers.q3 === 'B') rawScore++;
+    
+    const band = 3.5 + rawScore * 1.5;
+    setPlacementBand(band.toFixed(1));
+    setPlacementCompleted(true);
+
+    setWeeklyPlan([
+      { day: "Thứ 2", focus: "Ngữ pháp nâng cao", detail: "Học cấu trúc đảo ngữ (Inversion) và câu giả định." },
+      { day: "Thứ 3", focus: "Giao tiếp phản xạ", detail: "Mở rộng từ vựng về chủ đề 'Gia đình & Vai vế' trong Speaking Lab." },
+      { day: "Thứ 4", focus: "Kỹ năng Viết", detail: "Thực hành viết mở bài cho dạng bài luận Discussion Essay." },
+      { day: "Thứ 5", focus: "Học từ vựng trực quan", detail: "Ghi nhớ và đặt câu với chủ đề 'Nhà cửa' và 'Số đếm'." },
+      { day: "Thứ 6", focus: "Luyện nghe nói phản xạ", detail: "Giải quyết các bẫy thường gặp trong câu hỏi trắc nghiệm." }
+    ]);
+    showNotification("Đã tạo lộ trình cá nhân hóa thành công!", "success");
+  };
+
+  const handleGrammarSubmit = (syllabusId, questionIdx, optionIdx, correctIdx) => {
+    const isCorrect = optionIdx === correctIdx;
+    const key = `${syllabusId}_${questionIdx}`;
+    setGrammarScores(prev => ({ ...prev, [key]: isCorrect }));
+    setSelectedAnswers(prev => ({ ...prev, [key]: optionIdx }));
+    if (isCorrect) {
+      showNotification("Đáp án chính xác! Chúc mừng bạn.", "success");
+    } else {
+      showNotification("Đáp án chưa chính xác, hãy thử phân tích lại nhé.", "error");
+    }
+  };
+
+  const handleAddAppointment = (e) => {
+    e.preventDefault();
+    if (!newAppt.date || !newAppt.time || !newAppt.topic.trim()) {
+      showNotification("Vui lòng điền đầy đủ thông tin lịch hẹn.", "error");
+      return;
+    }
+    const created = {
+      id: Date.now(),
+      ...newAppt
+    };
+    setAppointments(prev => [...prev, created]);
+    setNewAppt({ date: '', time: '', mentor: 'AI Speaking Coach', topic: '' });
+    showNotification("Đã đặt lịch hẹn học thành công!", "success");
+  };
+
+  const handleDeleteAppointment = (id) => {
+    setAppointments(prev => prev.filter(item => item.id !== id));
+    showNotification("Đã xóa lịch hẹn học.", "info");
+  };
+
+  const handleMockSubmit = () => {
+    setMockRunning(false);
+    setMockSubmitted(true);
+    let calculated = 0;
+    if (mockAnswers.mq1.trim().toUpperCase() === "TRUE") calculated++;
+    if (mockAnswers.mq2.trim().toUpperCase() === "FALSE") calculated++;
+    if (mockAnswers.mq3.trim().toUpperCase() === "NOT GIVEN") calculated++;
+    setMockScore(calculated);
+    showNotification("Đã nộp bài thi thử thành công!", "success");
+  };
+
+  const handleMoodSubmit = async () => {
+    if (!moodInput.trim()) return;
+    const userMsg = moodInput;
+    const updated = [...moodChat, { role: 'user', text: userMsg }];
+    setMoodChat(updated);
+    setMoodInput('');
+    setIsMoodLoading(true);
+
+    const systemInstruction = "You are an extremely kind, compassionate, and understanding psychological support coach for Vietnamese English learners. Language learning is tough and stressful; validate their feelings, offer genuine encouragement, and provide 2 small, practical mental wellness tips (e.g., breath control, dynamic resting, micro-steps). Respond warmly and natively in Vietnamese.";
+    
+    try {
+      const reply = await callGeminiAPI(userMsg, systemInstruction);
+      setMoodChat([...updated, { role: 'ai', text: reply }]);
+    } catch {
+      setMoodChat([...updated, { role: 'ai', text: "Tôi luôn ở đây lắng nghe bạn. Có vẻ kết nối của tôi đang chập chờn, bạn hãy chia sẻ lại nhé." }]);
+      showNotification("Gặp lỗi khi kết nối với AI.", "error");
+    } finally {
+      setIsMoodLoading(false);
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const navigationGroups = [
+    {
+      title: "Hệ Thống Chính",
+      items: [
+        { id: 'dashboard', label: "Tổng Quan", icon: LayoutDashboard },
+        { id: 'adaptive', label: "Kiểm Tra Đầu Vào", icon: Award },
+      ]
+    },
+    {
+      title: "Khóa Học & Kỹ Năng",
+      items: [
+        { id: 'grammar', label: "Học Ngữ Pháp", icon: BookOpen },
+        { id: 'vocab', label: "Học Từ Vựng", icon: Book },
+        { id: 'scheduler', label: "Đặt Lịch Học", icon: Calendar },
+      ]
+    },
+    {
+      title: "AI Lab & Luyện Tập",
+      items: [
+        { id: 'chat', label: "Speaking Lab", icon: Mic },
+        { id: 'writing', label: "Writing Lab", icon: PenTool },
+        { id: 'mock-simulation', label: "Hội Trường Thi Thử", icon: GraduationCap },
+        { id: 'empathy', label: "Hỗ Trợ Tâm Lý", icon: BrainCircuit },
+      ]
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0b132b] text-slate-200 font-sans antialiased selection:bg-indigo-500/30 flex flex-col lg:flex-row" onDoubleClick={handleTextDoubleClick}>
+      
+      {/* Toast Notification */}
+      {notification && (
+        <div className={`fixed bottom-5 right-5 z-50 px-5 py-3.5 rounded-xl shadow-2xl border flex items-center gap-3 backdrop-blur-md transition-all ${
+          notification.type === 'success' ? 'bg-emerald-950/90 border-emerald-500 text-emerald-200' : 'bg-rose-950/90 border-rose-500 text-rose-200'
+        }`}>
+          {notification.type === 'success' ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <AlertCircle className="w-5 h-5 text-rose-400" />}
+          <span className="text-xs font-semibold tracking-wide">{notification.text}</span>
+        </div>
+      )}
+
+      {/* Instant Dictionary Pop-up with Live Gemini Translation */}
+      {activeDictionaryWord && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1c2541] border border-slate-700/60 max-w-lg w-full rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-700 pb-2">
+              <span className="text-xs uppercase tracking-widest font-bold text-indigo-400 flex items-center gap-1.5"><Book className="w-4 h-4" /> Tra Từ Nhanh Trực Quan (Gemini Live)</span>
+              <button onClick={() => setActiveDictionaryWord(null)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            </div>
+            {dictionaryLoading ? (
+              <div className="py-12 flex flex-col items-center justify-center gap-3">
+                <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
+                <span className="text-xs text-slate-400">Gemini đang tra ngữ cảnh chuyên sâu...</span>
+              </div>
+            ) : (
+              dictionaryData && (
+                <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
+                  <div className="flex items-center gap-3">
+                    <h4 className="text-2xl font-bold font-serif text-white capitalize">{dictionaryData.word}</h4>
+                    <Volume2 className="w-5 h-5 text-indigo-400 cursor-pointer hover:text-indigo-300" onClick={() => {
+                      if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(dictionaryData.word);
+                        utterance.lang = 'en-US';
+                        window.speechSynthesis.speak(utterance);
+                      }
+                    }} />
+                  </div>
+                  <div className="bg-slate-900/80 p-4 rounded-xl text-xs text-slate-300 leading-relaxed font-sans whitespace-pre-wrap border border-slate-800">
+                    {dictionaryData.details}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE HEADER BAR */}
+      <header className="lg:hidden w-full bg-[#0b132b] border-b border-slate-800 p-4 flex items-center justify-between z-50 sticky top-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white text-sm">✨</div>
+          <div>
+            <h1 className="text-xs font-bold text-white leading-none">Chinh Phục Anh Ngữ cùng Thuy Le</h1>
+            <p className="text-[8px] text-slate-400 font-mono tracking-wider uppercase mt-0.5">Gemini Edition</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+          className="text-slate-300 hover:text-white p-1.5 bg-slate-900 border border-slate-800 rounded-lg"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      </header>
+
+      {/* SIDEBAR NAVIGATION - FIXED LEFT ON DESKTOP */}
+      <aside className={`
+        ${mobileMenuOpen ? 'flex' : 'hidden'} lg:flex 
+        fixed lg:sticky top-0 left-0 w-full lg:w-72 h-[100vh] lg:h-screen 
+        bg-[#0b132b] border-r border-slate-800/80 flex-col shrink-0 z-40 overflow-y-auto lg:overflow-visible
+      `}>
+        {/* Brand Section */}
+        <div className="p-6 border-b border-slate-800/80 flex items-center justify-between lg:justify-start gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center font-bold text-white tracking-tighter text-base shadow-lg shadow-indigo-600/25 shrink-0">✨</div>
+            <div>
+              <h1 className="text-sm font-bold tracking-tight text-white leading-tight">Thuy Le English</h1>
+              <p className="text-[9px] text-slate-400 font-mono tracking-wider uppercase">Institutional Core System</p>
+            </div>
+          </div>
+          <button onClick={() => setMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Navigation Toolbar Links */}
+        <nav className="flex-1 p-4 flex flex-col gap-6 overflow-y-auto scrollbar-none">
+          {navigationGroups.map((group, groupIdx) => (
+            <div key={groupIdx} className="space-y-2">
+              <p className="px-3 text-[10px] uppercase font-bold tracking-widest text-slate-500 font-mono">
+                {group.title}
+              </p>
+              
+              <div className="flex flex-col gap-1">
+                {group.items.map((tab) => {
+                  const IconComponent = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  
+                  return (
+                    <button 
+                      key={tab.id} 
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full px-3 py-2.5 rounded-xl text-left text-xs font-medium tracking-wide transition-all flex items-center justify-between group ${
+                        isActive 
+                          ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/20 font-bold' 
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                      }`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <IconComponent className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                        <span className="relative">
+                          {tab.label}
+                          {tab.id === 'mock-simulation' && mockRunning && (
+                            <span className="absolute -top-1 -right-4 flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                            </span>
+                          )}
+                        </span>
+                      </span>
+                      <ChevronRight className={`w-3.5 h-3.5 transition-all ${isActive ? 'translate-x-0.5 opacity-100' : 'opacity-0'}`} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* User profile inside the sidebar */}
+        <div className="p-4 border-t border-slate-800/60 bg-slate-950/20">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-[#1c2541]/40 border border-slate-800">
+            <div className="w-8 h-8 rounded-xl bg-indigo-950/60 border border-indigo-500/20 flex items-center justify-center text-xs text-indigo-300 font-bold shrink-0">TL</div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold text-slate-300 truncate">Học viên chuyên cần</p>
+              <p className="text-[9px] text-emerald-400 font-mono">🔥 Chạm mốc {streak} ngày</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* RIGHT WORKSPACE COLUMN */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen lg:overflow-y-auto">
+        
+        {/* Main Workspace Frame */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+          
+          {/* MODULE 1: INSTITUTIONAL DASHBOARD */}
+          {activeTab === 'dashboard' && (
+            <div className="space-y-6">
+              {/* Hero Banner card */}
+              <div className="p-6 md:p-8 rounded-2xl bg-gradient-to-r from-indigo-900/80 to-slate-900 border border-indigo-500/20 relative overflow-hidden shadow-2xl">
+                <div className="relative z-10 space-y-3 max-w-xl">
+                  <span className="px-2.5 py-1 text-[10px] uppercase font-bold tracking-widest text-indigo-300 bg-indigo-500/20 rounded-full flex items-center gap-1 w-max">
+                    <Sparkles className="w-3 h-3 animate-spin" /> Trí Tuệ Nhân Tạo Gemini AI Đã Kích Hoạt
+                  </span>
+                  <h2 className="text-xl md:text-3xl font-extrabold text-white font-serif leading-tight">Chinh Phục Anh Ngữ Cùng Thuy Le</h2>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Hệ thống học tiếng Anh đột phá thế hệ mới. Toàn bộ tính năng Luyện nói Speaking Lab, Chấm viết Writing Lab và Tra từ nhanh đều được kết nối trực tiếp với LLM thông minh nhất của Google.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button onClick={() => setActiveTab('adaptive')} className="bg-indigo-600 hover:bg-indigo-500 transition px-4 py-2 text-xs font-bold text-white rounded-lg shadow-lg shadow-indigo-600/30 flex items-center gap-1.5">
+                      Đo Trình Độ Đầu Vào <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={handleCheckIn} disabled={hasCheckedIn} className={`px-4 py-2 text-xs font-bold rounded-lg transition border ${hasCheckedIn ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'}`}>
+                      {hasCheckedIn ? '✓ Đã Điểm Danh Hôm Nay' : '🔥 Điểm Danh Báo Danh'}
+                    </button>
+                  </div>
+                </div>
+                <div className="absolute right-0 bottom-0 opacity-10 select-none pointer-events-none hidden md:block">
+                  <Sparkles className="w-72 h-72 text-indigo-400" />
+                </div>
+              </div>
+
+              {/* Status and Progress metrics row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-[#1c2541]/40 p-5 rounded-xl border border-slate-800/80 space-y-2">
+                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Trạng thái kết nối LLM</p>
+                  <h3 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping inline-block"></span>
+                    Sẵn sàng (Gemini-3-Flash)
+                  </h3>
+                  <p className="text-[10px] text-slate-400">Tự động tối ưu hóa phản hồi thực nghiệm.</p>
+                </div>
+
+                <div className="bg-[#1c2541]/40 p-5 rounded-xl border border-slate-800/80 space-y-2">
+                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Streak liên tiếp</p>
+                  <h3 className="text-2xl font-bold text-white flex items-center gap-2">🔥 {streak} ngày <span className="text-xs text-emerald-400 font-normal">Đều đặn</span></h3>
+                  <div className="w-full bg-slate-900 rounded-full h-1.5 mt-2">
+                    <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${Math.min(streak * 10, 100)}%` }}></div>
+                  </div>
+                </div>
+
+                <div className="bg-[#1c2541]/40 p-5 rounded-xl border border-slate-800/80 space-y-2">
+                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Mẹo học từ vựng nhanh</p>
+                  <p className="text-[11px] text-indigo-300 leading-snug">Double-click chuột vào một từ vựng bất kỳ trên màn hình để khởi chạy nhanh tra từ điển tự động bằng Gemini.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODULE 2: ADAPTIVE PLACEMENT TEST */}
+          {activeTab === 'adaptive' && (
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div className="bg-[#1c2541]/40 p-6 rounded-xl border border-slate-800 space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1.5"><Cpu className="w-4 h-4" /> Hệ Thống Kiểm Tra & Đánh Giá Năng Lực Đầu Vào</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">Hãy hoàn thành nhanh các câu hỏi ngữ pháp và từ vựng cốt lõi sau để thuật toán của English Mentor xây dựng và cá nhân hóa lộ trình tự học trọn vẹn dành riêng cho bạn.</p>
+              </div>
+
+              {!placementCompleted ? (
+                <div className="bg-[#1c2541]/30 p-6 rounded-xl border border-slate-800/60 space-y-6">
+                  
+                  {/* Question 1 */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-slate-200">Câu 1: Hardly _______ the building when the electrical storm began.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                      <button onClick={() => setPlacementAnswers(prev => ({ ...prev, q1: 'A' }))} className={`p-3 text-left rounded-lg border transition ${placementAnswers.q1 === 'A' ? 'bg-indigo-600 border-indigo-500 text-white font-semibold' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'}`}>
+                        A. had the scientist entered
+                      </button>
+                      <button onClick={() => setPlacementAnswers(prev => ({ ...prev, q1: 'B' }))} className={`p-3 text-left rounded-lg border transition ${placementAnswers.q1 === 'B' ? 'bg-indigo-600 border-indigo-500 text-white font-semibold' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'}`}>
+                        B. did the scientist entered
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Question 2 */}
+                  <div className="space-y-3 pt-2">
+                    <p className="text-xs font-semibold text-slate-200">Câu 2: Sibling refers to...</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                      <button onClick={() => setPlacementAnswers(prev => ({ ...prev, q2: 'A' }))} className={`p-3 text-left rounded-lg border transition ${placementAnswers.q2 === 'A' ? 'bg-indigo-600 border-indigo-500 text-white font-semibold' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'}`}>
+                        A. your brother or sister
+                      </button>
+                      <button onClick={() => setPlacementAnswers(prev => ({ ...prev, q2: 'B' }))} className={`p-3 text-left rounded-lg border transition ${placementAnswers.q2 === 'B' ? 'bg-indigo-600 border-indigo-500 text-white font-semibold' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'}`}>
+                        B. your distant relative
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Question 3 */}
+                  <div className="space-y-3 pt-2">
+                    <p className="text-xs font-semibold text-slate-200">Câu 3: I recommend that he _______ present at the council meeting yesterday.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                      <button onClick={() => setPlacementAnswers(prev => ({ ...prev, q3: 'A' }))} className={`p-3 text-left rounded-lg border transition ${placementAnswers.q3 === 'A' ? 'bg-indigo-600 border-indigo-500 text-white font-semibold' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'}`}>
+                        A. was
+                      </button>
+                      <button onClick={() => setPlacementAnswers(prev => ({ ...prev, q3: 'B' }))} className={`p-3 text-left rounded-lg border transition ${placementAnswers.q3 === 'B' ? 'bg-indigo-600 border-indigo-500 text-white font-semibold' : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'}`}>
+                        B. be
+                      </button>
+                    </div>
+                  </div>
+
+                  <button onClick={handlePlacementSubmit} className="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg text-xs font-bold text-white transition shadow-lg shadow-indigo-600/25">
+                    Gửi Câu Trả Lời & Khởi Tạo Lộ Trình
+                  </button>
+
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  
+                  {/* Diagnostic output */}
+                  <div className="bg-emerald-950/40 border border-emerald-500/40 p-6 rounded-xl space-y-3">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wider">Kết Quả Đánh Giá Năng Lực</h4>
+                      <span className="px-2.5 py-1 text-xs bg-emerald-500/20 text-emerald-300 font-bold rounded">Hoàn Thành</span>
+                    </div>
+                    <p className="text-xs text-slate-300">
+                      Căn cứ vào kết quả kiểm tra thích ứng đầu tiên, trình độ ngoại ngữ của bạn hiện tại ước tính tương đương **CEFR {placementBand >= 5.0 ? 'B2' : 'B1'}**. Hệ thống đã tự thiết lập giáo án tự động phù hợp dưới đây.
+                    </p>
+                  </div>
+
+                  {/* Generated syllabus list */}
+                  <div className="bg-[#1c2541]/40 border border-slate-800 rounded-xl p-6 space-y-4">
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-indigo-400">Giáo trình lộ trình tự học tuần này:</h4>
+                    <div className="space-y-3">
+                      {weeklyPlan.map((p, idx) => (
+                        <div key={idx} className="bg-slate-950/40 p-3.5 rounded-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                          <div>
+                            <span className="text-[10px] font-bold text-indigo-400 uppercase font-mono mr-2">{p.day}</span>
+                            <strong className="text-xs text-white">{p.focus}</strong>
+                          </div>
+                          <span className="text-[11px] text-slate-400 italic">{p.detail}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pt-2 flex justify-end">
+                      <button onClick={() => setPlacementCompleted(false)} className="text-slate-500 hover:text-slate-300 text-xs flex items-center gap-1">
+                        <RefreshCw className="w-3.5 h-3.5" /> Kiểm tra lại năng lực
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+          )}
+
+          {/* MODULE 3: GRAMMAR LAB */}
+          {activeTab === 'grammar' && (
+            <div className="max-w-4xl mx-auto space-y-6">
+              
+              <div className="bg-[#1c2541]/40 p-6 rounded-xl border border-slate-800 space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1.5"><BookOpen className="w-4 h-4" /> Grammar Lab: Chuyên Đề Ngữ Pháp</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">Hãy nghiên cứu sâu lý thuyết và làm nhanh trắc nghiệm tương tác phía dưới để ghi nhớ chắc chắn các cấu trúc ngữ pháp học thuật khó.</p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                {grammarSyllabus.map((syllabus) => (
+                  <div key={syllabus.id} className="bg-[#1c2541]/30 p-6 rounded-xl border border-slate-800 space-y-4">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                      <div>
+                        <h4 className="text-sm font-bold text-white">{syllabus.title}</h4>
+                        <p className="text-[10px] font-mono text-indigo-400 uppercase tracking-widest mt-0.5">Trình Độ: {syllabus.difficulty}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-xs leading-relaxed text-slate-300">
+                      <p><strong className="text-slate-100">Giải thích chi tiết:</strong> {syllabus.explanation}</p>
+                      <div className="bg-slate-900/60 p-3 rounded border border-slate-800 font-mono text-indigo-300">
+                        <span className="block text-[10px] uppercase text-slate-500 font-bold mb-1">Công thức:</span>
+                        {syllabus.formula}
+                      </div>
+                      <p><strong className="text-slate-100">Ví dụ tiêu biểu:</strong> <em className="text-slate-400">"{syllabus.example}"</em></p>
+                    </div>
+
+                    {/* Quiz Questions inside grammar syllabus */}
+                    <div className="space-y-4 pt-4 border-t border-slate-800/60">
+                      <h5 className="text-[11px] uppercase tracking-wider font-bold text-amber-500">Bài tập vận dụng tương tác:</h5>
+                      {syllabus.questions.map((question, qIdx) => {
+                        const key = `${syllabus.id}_${qIdx}`;
+                        const isCorrect = grammarScores[key];
+                        const selectedOpt = selectedAnswers[key];
+
+                        return (
+                          <div key={qIdx} className="bg-slate-950/40 p-4 rounded-lg space-y-3">
+                            <p className="text-xs font-medium text-slate-200">{qIdx + 1}. {question.q}</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {question.options.map((option, oIdx) => {
+                                let btnStyle = "bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700";
+                                if (selectedOpt === oIdx) {
+                                  btnStyle = oIdx === question.correct 
+                                    ? "bg-emerald-950/80 border-emerald-500 text-emerald-300 font-bold" 
+                                    : "bg-rose-950/80 border-rose-500 text-rose-300 font-bold";
+                                }
+
+                                return (
+                                  <button 
+                                    key={oIdx} 
+                                    onClick={() => handleGrammarSubmit(syllabus.id, qIdx, oIdx, question.correct)}
+                                    className={`p-2.5 text-left rounded-lg text-xs border transition ${btnStyle}`}
+                                  >
+                                    {option}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {selectedOpt !== undefined && (
+                              <p className={`text-[10px] font-mono ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                {isCorrect ? "✓ Chính xác" : `✗ Sai rồi, đáp án đúng là: ${question.options[question.correct]}`}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          )}
+
+          {/* MODULE 4: STUDY SCHEDULER */}
+          {activeTab === 'scheduler' && (
+            <div className="max-w-4xl mx-auto space-y-6">
+              
+              <div className="bg-[#1c2541]/40 p-6 rounded-xl border border-slate-800 space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1.5"><Calendar className="w-4 h-4" /> Study Scheduler: Lên Lịch Học Tập</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">Hãy quản lý quỹ thời gian thông minh và đặt lịch học trực tuyến cùng trợ lý ảo AI để nhận được sự tư vấn, rèn luyện kịp thời.</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Book appointment form */}
+                <div className="bg-[#1c2541]/30 p-5 rounded-xl border border-slate-800 space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-indigo-400">Đặt Lịch Học Mới</h4>
+                  <form onSubmit={handleAddAppointment} className="space-y-3.5 text-xs">
+                    
+                    <div className="space-y-1.5">
+                      <label className="text-slate-400">Chọn Ngày:</label>
+                      <input 
+                        type="date" 
+                        value={newAppt.date} 
+                        onChange={e => setNewAppt(prev => ({ ...prev, date: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-slate-400">Chọn Giờ:</label>
+                      <input 
+                        type="time" 
+                        value={newAppt.time} 
+                        onChange={e => setNewAppt(prev => ({ ...prev, time: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-slate-400">Gặp Trợ Lý Học Thuật:</label>
+                      <select 
+                        value={newAppt.mentor} 
+                        onChange={e => setNewAppt(prev => ({ ...prev, mentor: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500"
+                      >
+                        <option value="AI Speaking Coach">AI Speaking Coach</option>
+                        <option value="AI Writing Evaluator">AI Writing Evaluator</option>
+                        <option value="AI Vocabulary Tutor">AI Vocabulary Tutor</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-slate-400">Chủ Đề Cần Học:</label>
+                      <input 
+                        type="text" 
+                        placeholder="Ví dụ: Ôn luyện thì hoàn thành" 
+                        value={newAppt.topic} 
+                        onChange={e => setNewAppt(prev => ({ ...prev, topic: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+
+                    <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 p-2.5 rounded-lg text-white font-bold tracking-wide transition flex items-center justify-center gap-1">
+                      <Plus className="w-4 h-4" /> Lưu Lịch Học
+                    </button>
+
+                  </form>
+                </div>
+
+                {/* Scheduled appointments list */}
+                <div className="lg:col-span-2 bg-[#1c2541]/20 border border-slate-800 rounded-xl p-5 space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Các buổi học đã lên lịch</h4>
+                  {appointments.length === 0 ? (
+                    <p className="text-xs italic text-slate-500 py-6 text-center">Bạn hiện tại chưa có buổi học nào được đặt lịch.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {appointments.map((appt) => (
+                        <div key={appt.id} className="bg-slate-950/40 p-4 rounded-xl border border-slate-800/80 flex justify-between items-center gap-2">
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-mono bg-indigo-950 text-indigo-300 border border-indigo-500/20 px-2 py-0.5 rounded">
+                              {appt.date} • {appt.time}
+                            </span>
+                            <h5 className="text-xs font-bold text-white pt-1">{appt.topic}</h5>
+                            <p className="text-[10px] text-slate-400">Huấn luyện viên: {appt.mentor}</p>
+                          </div>
+                          <button onClick={() => handleDeleteAppointment(appt.id)} className="p-2 text-rose-500 hover:bg-rose-950/30 rounded-lg transition">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* MODULE 5: SPEAKING LAB (LIVE GEMINI) */}
+          {activeTab === 'chat' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <div className="bg-[#1c2541]/50 p-6 rounded-xl border border-slate-800 space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1.5"><Cpu className="w-4 h-4" /> Speaking Lab (Powered by Gemini)</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Luyện nói phản xạ trực tiếp với AI Mentor. Mỗi lượt gửi tin nhắn sẽ được phân tích ngữ nghĩa, sửa lỗi từ vựng/ngữ pháp và định hướng câu trả lời tối ưu thời gian thực.
+                </p>
+                <div className="p-3 bg-indigo-950/40 rounded-lg border border-indigo-500/10 text-[10px] text-slate-300">
+                  <span className="text-indigo-400 font-bold uppercase block mb-1">Mẹo nâng cao:</span>
+                  Bạn có thể nhấp đúp chuột trực tiếp vào bất kỳ cụm từ vựng nào trong khung thoại bên cạnh để tra cứu nhanh ngữ cảnh bằng mô hình Gemini.
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 bg-[#1c2541]/30 border border-slate-800 rounded-xl flex flex-col h-[500px] overflow-hidden">
+                
+                {/* Chat window viewport */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none">
+                  {chatMessages.map((m, i) => (
+                    <div key={i} className={`flex max-w-[85%] ${m.role === 'user' ? 'ml-auto justify-end' : 'justify-start'}`}>
+                      <div className={`p-4 rounded-xl text-xs leading-relaxed whitespace-pre-wrap ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-900 border border-slate-800 rounded-bl-none text-slate-300'}`}>
+                        {m.text}
+                      </div>
+                    </div>
+                  ))}
+                  {isChatLoading && (
+                    <div className="flex items-center gap-2 text-xs text-indigo-400 italic animate-pulse">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Trí tuệ nhân tạo Gemini đang phân tích ngữ nghĩa và biên soạn câu trả lời...
+                    </div>
+                  )}
+                </div>
+
+                {/* Input action toolbar */}
+                <div className="p-4 bg-slate-950 border-t border-slate-800 flex gap-2">
+                  <input 
+                    type="text" 
+                    value={chatInput} 
+                    disabled={isChatLoading}
+                    onChange={e => setChatInput(e.target.value)} 
+                    onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                    placeholder="Nhập câu trả lời bằng tiếng Anh của bạn tại đây..." 
+                    className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 disabled:opacity-50"
+                  />
+                  <button onClick={handleSendMessage} disabled={isChatLoading} className="bg-indigo-600 hover:bg-indigo-500 px-4 rounded-lg text-white text-xs font-bold transition flex items-center justify-center disabled:opacity-50">
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* MODULE 6: WRITING LAB (LIVE GEMINI) */}
+          {activeTab === 'writing' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              
+              <div className="bg-[#1c2541]/30 p-6 rounded-xl border border-slate-800 flex flex-col space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1.5"><FileText className="w-4 h-4" /> Writing Practice (Powered by Gemini)</h3>
+                  <p className="text-[11px] text-slate-400">Hãy viết bài luận tiếng Anh của bạn bên dưới. Hệ thống chấm sẽ dựa trên tiêu chuẩn Cambridge để đánh giá ngữ pháp, cách dùng từ và đề xuất bản sửa lỗi tối ưu.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Đề bài tự luận:</span>
+                  <input 
+                    type="text" 
+                    value={essayTopic} 
+                    onChange={e => setEssayTopic(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-semibold"
+                  />
+                </div>
+
+                <div className="flex-1 flex flex-col space-y-1.5 min-h-[250px]">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Nội dung bài luận:</span>
+                  <textarea 
+                    value={essayText} 
+                    onChange={e => setEssayText(e.target.value)}
+                    placeholder="Bắt đầu gõ hoặc dán văn bản bài luận học thuật của bạn tại đây..." 
+                    className="w-full flex-1 bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <button 
+                  onClick={handleCorrectEssay} 
+                  disabled={isCorrecting} 
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg text-xs font-bold text-white transition flex items-center justify-center gap-2"
+                >
+                  {isCorrecting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" /> Trí tuệ Gemini đang khảo thí và chấm điểm bài viết...
+                    </>
+                  ) : (
+                    <>Gửi Bài Cho Gemini Điểm Đánh Giá</>
+                  )}
+                </button>
+              </div>
+
+              {/* Evaluation Report Frame */}
+              <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 flex flex-col h-[500px] lg:h-auto overflow-hidden">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-800 pb-3">Báo cáo đánh giá & sửa đổi từ Gemini AI</h4>
+                <div className="flex-1 overflow-y-auto pt-4 text-xs leading-relaxed text-slate-300 whitespace-pre-wrap font-sans">
+                  {essayCorrection ? (
+                    essayCorrection
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-500 text-center space-y-2 py-12">
+                      <FileText className="w-8 h-8 text-slate-600 animate-bounce" />
+                      <p>Hiện chưa có bản sửa bài. Hãy hoàn thiện nội dung và bấm gửi bài viết ở bảng điều khiển bên trái.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* MODULE 7: ACADEMIC MOCK TEST SIMULATOR */}
+          {activeTab === 'mock-simulation' && (
+            <div className="space-y-4">
+              
+              {/* Simulator Action Row */}
+              <div className="bg-[#1c2541]/40 p-4 rounded-xl border border-slate-800/80 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                  <p className="text-xs font-bold text-white">English Academic Simulator: reading comprehension</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-mono text-indigo-300 font-bold bg-indigo-950/60 px-3 py-1.5 rounded border border-indigo-500/25">
+                    Thời Gian: {formatTime(mockTimeRemaining)}
+                  </span>
+                  <button 
+                    onClick={() => setMockRunning(!mockRunning)} 
+                    className={`px-4 py-1.5 rounded text-xs font-bold transition flex items-center gap-1.5 ${mockRunning ? 'bg-amber-600 text-white' : 'bg-indigo-600 text-white'}`}
+                  >
+                    {mockRunning ? <Square className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />} {mockRunning ? 'Tạm Dừng' : 'Bắt Đầu Làm'}
+                  </button>
+                  <button onClick={handleMockSubmit} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded text-xs transition">
+                    Nộp Bài Thi
+                  </button>
+                </div>
+              </div>
+
+              {/* Split-Screen layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[550px]">
+                
+                {/* Passage Column (Left) */}
+                <div className="bg-[#0b132b]/80 border border-slate-800 rounded-xl p-5 overflow-y-auto space-y-4 text-justify font-serif leading-relaxed text-slate-300">
+                  <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">The Architectural evolution of modern cities</h3>
+                  <p className="text-xs">
+                    In the pre-industrial era, urban planning was heavily constrained by the availability of localized resources and traditional masonry methods. Most structures were modest in scope, constructed from timber, load-bearing brick, or stone, keeping cities horizontally compact. However, the dawn of the late nineteenth century witnessed two technological breakthroughs that transformed global metropolis landscapes forever: structural steel framing and the passenger safety elevator.
+                  </p>
+                  <p className="text-xs">
+                    By transferring building loads from thick masonry walls to highly resilient interior steel skeletal networks, designers could construct exceptionally tall structures without sacrificing precious internal real estate. In addition, urban densification allowed financial institutions and labor forces to aggregate in centralized commercial zones, maximizing economic efficiency at the cost of increased congestion.
+                  </p>
+                </div>
+
+                {/* Answer Sheets (Right) */}
+                <div className="bg-[#1c2541]/20 border border-slate-800 rounded-xl p-5 overflow-y-auto space-y-5">
+                  <span className="text-[10px] font-mono text-amber-500 font-bold uppercase tracking-wider block">Phiếu làm bài thi sinh động:</span>
+                  
+                  {mockSubmitted && (
+                    <div className="bg-indigo-950/50 p-4 rounded-lg border border-indigo-500/30 text-xs text-indigo-200">
+                      <strong>Tổng điểm của bạn: {mockScore} / 3</strong> câu chính xác.
+                    </div>
+                  )}
+
+                  <div className="space-y-4 text-xs">
+                    
+                    <div className="space-y-2">
+                      <p className="text-slate-200 font-semibold">Câu 1: Before the industrial age, building design was limited by locally available materials. (Nhập TRUE / FALSE / NOT GIVEN)</p>
+                      <input 
+                        type="text" 
+                        value={mockAnswers.mq1} 
+                        onChange={e => setMockAnswers(prev => ({ ...prev, mq1: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-indigo-500"
+                        placeholder="Câu trả lời của bạn..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-slate-200 font-semibold">Câu 2: Industrial masonry walls remained essential to bear loads of tall skyscrapers. (Nhập TRUE / FALSE / NOT GIVEN)</p>
+                      <input 
+                        type="text" 
+                        value={mockAnswers.mq2} 
+                        onChange={e => setMockAnswers(prev => ({ ...prev, mq2: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-indigo-500"
+                        placeholder="Câu trả lời của bạn..."
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-slate-200 font-semibold">Câu 3: Centralized commercial zones led to a decrease in urban rent. (Nhập TRUE / FALSE / NOT GIVEN)</p>
+                      <input 
+                        type="text" 
+                        value={mockAnswers.mq3} 
+                        onChange={e => setMockAnswers(prev => ({ ...prev, mq3: e.target.value }))}
+                        className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-indigo-500"
+                        placeholder="Câu trả lời của bạn..."
+                      />
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* MODULE 8: ACADEMIC VOCABULARY CORPUS */}
+          {activeTab === 'vocab' && (
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              
+              {/* Category list */}
+              <div className="lg:col-span-1 flex flex-col gap-1.5">
+                {initialVocabularyTopics.map((topic, idx) => (
+                  <button 
+                    key={idx} 
+                    onClick={() => setSelectedVocabTopic(topic)}
+                    className={`w-full p-3.5 rounded-xl text-left text-xs font-semibold transition-all flex items-center justify-between border ${
+                      selectedVocabTopic.title === topic.title 
+                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/10' 
+                        : 'bg-[#1c2541]/30 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                    }`}
+                  >
+                    <span>{topic.icon} {topic.title}</span>
+                    <span className="text-[10px] font-mono bg-slate-950/40 px-1.5 py-0.5 rounded text-slate-400">{topic.words.length} từ</span>
+                  </button>
+                ))}
+
+                {/* Instant Search Widget */}
+                <div className="mt-4 p-4 rounded-xl bg-slate-950/40 border border-slate-800 space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1"><Search className="w-3.5 h-3.5" /> Tìm nhanh từ vựng:</label>
+                  <input 
+                    type="text" 
+                    value={searchQuery} 
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Nhập từ cần tra cứu..."
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs text-slate-200 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Word List Display Frame */}
+              <div className="lg:col-span-3 bg-[#1c2541]/50 p-6 rounded-xl border border-slate-800/80 space-y-4">
+                <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-1.5">📚 Chi tiết kho từ vựng</h4>
+                  <span className="text-xs text-slate-400 font-medium">Bôi đen cụm từ bất kỳ để tra cứu phiên âm</span>
+                </div>
+
+                <div className="space-y-4">
+                  {selectedVocabTopic.words
+                    .filter(item => {
+                      if (!searchQuery.trim()) return true;
+                      return item.term.toLowerCase().includes(searchQuery.toLowerCase()) || item.meaning.toLowerCase().includes(searchQuery.toLowerCase());
+                    })
+                    .map((item, idx) => (
+                      <div key={idx} className="bg-slate-950/60 p-4 rounded-xl border border-slate-900 space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <h5 className="text-sm font-bold text-indigo-400 font-mono">{item.term}</h5>
+                          <span className="text-xs text-slate-500 font-mono">{item.ipa}</span>
+                        </div>
+                        <p className="text-xs text-slate-200 leading-relaxed font-semibold">{item.meaning}</p>
+                        <div className="text-xs italic text-slate-400 font-serif pt-1 pl-2 border-l border-indigo-500/20">
+                          "{item.example}"
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* MODULE 9: PSYCHOLOGICAL WELL-BEING SUPPORT */}
+          {activeTab === 'empathy' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="bg-[#1c2541]/50 p-6 rounded-xl border border-slate-800 space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-rose-400 flex items-center gap-1.5"><Heart className="w-4 h-4" /> Mental Health Support (Gemini)</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">Học ngôn ngữ mới đôi khi khiến bạn cảm thấy quá tải và nản lòng. Hãy trò chuyện ẩn danh với cố vấn tâm lý để được thấu cảm, động viên và hướng dẫn mẹo vượt qua áp lực.</p>
+              </div>
+
+              <div className="lg:col-span-2 bg-[#1c2541]/30 border border-slate-800 rounded-xl flex flex-col h-[500px] overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none">
+                  {moodChat.map((m, i) => (
+                    <div key={i} className={`flex max-w-[85%] ${m.role === 'user' ? 'ml-auto justify-end' : 'justify-start'}`}>
+                      <div className={`p-4 rounded-xl text-xs leading-relaxed whitespace-pre-wrap ${m.role === 'user' ? 'bg-rose-900/80 text-white rounded-br-none' : 'bg-slate-900 border border-slate-800 rounded-bl-none text-slate-300'}`}>
+                        {m.text}
+                      </div>
+                    </div>
+                  ))}
+                  {isMoodLoading && (
+                    <div className="flex items-center gap-2 text-xs text-rose-400 italic animate-pulse">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Gemini AI đang lắng nghe và soạn lời chia sẻ của bạn...
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 bg-slate-950 border-t border-slate-800 flex gap-2">
+                  <input 
+                    type="text" 
+                    value={moodInput} 
+                    disabled={isMoodLoading}
+                    onChange={e => setMoodInput(e.target.value)} 
+                    onKeyDown={e => e.key === 'Enter' && handleMoodSubmit()}
+                    placeholder="Chia sẻ trạng thái học tập hoặc khó khăn của bạn với AI..." 
+                    className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-rose-500 disabled:opacity-50"
+                  />
+                  <button onClick={handleMoodSubmit} disabled={isMoodLoading} className="bg-rose-700 hover:bg-rose-600 px-4 rounded-lg text-white text-xs font-bold transition flex items-center justify-center disabled:opacity-50">
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </main>
+
+        {/* Corporate Institutional Footer */}
+        <footer className="border-t border-slate-800/60 bg-[#0b132b] py-4 text-center text-[10px] font-mono text-slate-500 tracking-wider mt-auto">
+          ENGLISH ENVIRONMENT MANAGEMENT SYSTEM • GEMINI AI CORE VERSION 6.0.0 • © 2026
+        </footer>
+
+      </div>
+    </div>
+  );
+}
